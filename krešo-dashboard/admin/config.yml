@@ -1,0 +1,44 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "static/slike"
+public_folder: "/slike"
+
+locale: 'hr'
+
+collections:
+  - name: "aplikacije"
+    label: "Web Aplikacije"
+    folder: "sadržaj/aplikacije"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Naziv aplikacije", name: "title", widget: "string", hint: "Unesite naziv vaše web aplikacije"}
+      - {label: "Kratki opis", name: "description", widget: "text", hint: "Opišite što vaša aplikacija radi u 1-2 rečenice"}
+      - {label: "URL adresa", name: "url", widget: "string", pattern: ['^https?://.+', 'Molimo unesite valjanu URL adresu (počinje s http:// ili https://)'], hint: "Puna adresa vaše aplikacije (npr. https://moja-app.netlify.app)"}
+      - {label: "Ikona", name: "icon", widget: "string", default: "🌐", hint: "Odaberite emoji koji predstavlja vašu aplikaciju"}
+      - {label: "Kategorija", name: "category", widget: "select", options: ["Web stranica", "Online trgovina", "Portfolio", "Blog", "Igra", "Alat", "Ostalo"]}
+      - {label: "Status", name: "status", widget: "select", options: [
+          {label: "Aktivna", value: "Active"},
+          {label: "Održavanje", value: "Maintenance"}, 
+          {label: "Beta verzija", value: "Beta"}
+        ], default: "Active"}
+      - {label: "Istaknuta aplikacija", name: "featured", widget: "boolean", default: false, hint: "Aplikacije označene kao istaknute prikazat će se na vrhu popisa"}
+      - {label: "Slika aplikacije", name: "screenshot", widget: "image", required: false, hint: "Opcionalno - dodajte sliku ili screenshot vaše aplikacije"}
+      - {label: "Datum stvaranja", name: "date", widget: "datetime", default: ""}
+
+  - name: "postavke"
+    label: "Postavke stranice"
+    files:
+      - label: "Općenite postavke"
+        name: "općenito"
+        file: "sadržaj/postavke/općenito.md"
+        fields:
+          - {label: "Naslov stranice", name: "site_title", widget: "string", default: "Krešo - Moje Aplikacije", hint: "Naslov koji se prikazuje u browseru"}
+          - {label: "Podnaslov", name: "site_subtitle", widget: "string", default: "Moje Web Aplikacije", hint: "Tekst ispod glavnog naslova"}
+          - {label: "Opis stranice", name: "site_description", widget: "text", default: "Dashboard za sve moje web aplikacije"}
+          - {label: "Glavna boja teme", name: "theme_color", widget: "color", default: "#667eea"}
+          - {label: "Logo slovo", name: "logo_letter", widget: "string", default: "K", hint: "Slovo koje se prikazuje u logo krugu"}
+          - {label: "Ime u naslovu", name: "header_name", widget: "string", default: "Krešo", hint: "Ime koje se prikazuje velikim slovima"}
+          - {label: "Tekst u podnožju", name: "footer_text", widget: "text", default: "© 2025 Krešo. Sve aplikacije hostovane na Netlify."}

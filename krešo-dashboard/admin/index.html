@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upravljanje sadržajem - Krešo Dashboard</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  </head>
+  <body>
+    <!-- Skripta koja pokreće Netlify CMS -->
+    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+    
+    <script>
+      // Prilagođavanje CMS-a na hrvatski jezik
+      CMS.registerPreviewTemplate('aplikacije', function(props) {
+        const statusLabels = {
+          'Active': 'Aktivna',
+          'Maintenance': 'Održavanje', 
+          'Beta': 'Beta verzija'
+        };
+
+        const categoryLabels = {
+          'Web stranica': '🌐',
+          'Online trgovina': '🛒',
+          'Portfolio': '📁',
+          'Blog': '📝',
+          'Igra': '🎮',
+          'Alat': '🔧',
+          'Ostalo': '⭐'
+        };
+
+        const status = props.entry.getIn(['data', 'status']) || 'Active';
+        const category = props.entry.getIn(['data', 'category']) || 'Ostalo';
+        
+        return `
+          <div style="padding: 25px; border: 2px solid #667eea; border-radius: 15px; margin: 15px 0; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 15px;">
+              <div style="font-size: 3rem; margin-bottom: 10px;">${props.entry.getIn(['data', 'icon']) || categoryLabels[category] || '🌐'}</div>
+              <h2 style="color: #333; margin-bottom: 5px;">${props.entry.getIn(['data', 'title']) || 'Naziv aplikacije'}</h2>
+              <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 15px;">
+                <span style="background: #e3f2fd; color: #1976d2; padding: 5px 12px; border-radius: 15px; font-size: 0.9rem;">📂 ${category}</span>
+                <span style="background: #e8f5e8; color: #2d7d32; padding: 5px 12px; border-radius: 15px; font-size: 0.9rem;">🔄 ${statusLabels[status]}</span>
+                ${props.entry.getIn(['data', 'featured']) ? '<span style="background: #fff3e0; color: #f57c00; padding: 5px 12px; border-radius: 15px; font-size: 0.9rem;">⭐ Istaknuto</span>' : ''}
+              </div>
+            </div>
+            <p style="color: #666; margin-bottom: 15px; line-height: 1.6; text-align: center;">${props.entry.getIn(['data', 'description']) || 'Opis aplikacije...'}</p>
+            <div style="text-align: center;">
+              <a href="${props.entry.getIn(['data', 'url']) || '#'}" target="_blank" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: 500; display: inline-block;">
+                🚀 Otvori aplikaciju
+              </a>
+            </div>
+          </div>
+        `;
+      });
+
+      // Hrvatski prijevodi za CMS
+      CMS.registerLocale('hr', {
+        app: {
+          header: {
+            content: 'Sadržaj',
+            workflow: 'Tijekovi rada',
+            media: 'Mediji',
+            quickAdd: 'Brzo dodavanje'
+          }
+        },
+        collection: {
+          sidebar: {
+            collections: 'Kolekcije',
+            allCollections: 'Sve kolekcije',
+            searchAll: 'Pretraži sve'
+          }
+        },
+        editor: {
+          editorControl: {
+            field: {
+              optional: 'neobavezno'
+            }
+          },
+          editorControlPane: {
+            widget: {
+              required: '%{fieldLabel} je obavezno.',
+              regexPattern: '%{fieldLabel} ne odgovara uzorku: %{pattern}.',
+              processing: 'Obrađuje se %{fieldLabel}.',
+              range: '%{fieldLabel} mora biti između %{minValue} i %{maxValue}.',
+              min: '%{fieldLabel} mora biti najmanje %{minValue}.',
+              max: '%{fieldLabel} mora biti %{maxValue} ili manje.'
+            }
+          },
+          editor: {
+            onLeavePage: 'Jeste li sigurni da želite napustiti ovu stranicu?',
+            onUpdatingWithUnsavedChanges: 'Imate nespremljene promjene, molimo spremite prije ažuriranja statusa.',
+            onPublishingNotReady: 'Molimo ažurirajte status na "Spremno" prije objavljivanja.',
+            onPublishingWithUnsavedChanges: 'Imate nespremljene promjene, molimo spremite prije objavljivanja.',
+            onPublishing: 'Jeste li sigurni da želite objaviti ovaj unos?',
+            onUnpublishing: 'Jeste li sigurni da želite poništiti objavu ovog unosa?',
+            onDeleteWithUnsavedChanges: 'Jeste li sigurni da želite obrisati ovaj objavljeni unos, kao i nespremljene promjene iz trenutne sesije?',
+            onDeletePublishedEntry: 'Jeste li sigurni da želite obrisati ovaj objavljeni unos?',
+            onDeleteUnpublishedChanges: 'Sve neobjavljene promjene ovog unosa će biti obrisane. Još uvijek želite obrisati?',
+            loadingEntry: 'Učitava se unos...'
+          }
+        },
+        mediaLibrary: {
+          mediaLibrary: {
+            onDelete: 'Jeste li sigurni da želite obrisati odabranu datoteku?'
+          }
+        }
+      });
+
+      // Postavljanje hrvatskog kao zadanog jezika
+      CMS.init({
+        config: {
+          locale: 'hr'
+        }
+      });
+
+      // Auto-login funkcionalnost
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/admin/";
+            });
+          }
+        });
+      }
+    </script>
+
+    <style>
+      /* Prilagođavanje stilova CMS-a u hrvatskim bojama */
+      .css-12yqrwa-AppMainContainer {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      }
+      
+      .css-v758ki-AppHeaderContainer {
+        background: rgba(255,255,255,0.95) !important;
+        backdrop-filter: blur(15px) !important;
+        border-bottom: 3px solid #667eea !important;
+      }
+
+      /* Prilagođavanje boja gumbova */
+      button[data-testid="publish-entry-btn"] {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        border: none !important;
+      }
+
+      /* Stiliziranje navigacije */
+      .css-1hwfws3 {
+        background: rgba(255,255,255,0.1) !important;
+        backdrop-filter: blur(10px) !important;
+      }
+
+      /* Naslov CMS-a */
+      .css-1hwfws3::before {
+        content: "🎨 Krešo Dashboard CMS";
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding: 10px;
+        display: block;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        margin-bottom: 10px;
+      }
+    </style>
+  </body>
+</html>

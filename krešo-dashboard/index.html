@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krešo - Moje Aplikacije</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Monoton&family=Bungee+Shade&family=Nosifer&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .admin-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .admin-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .logo {
+            background: linear-gradient(135deg, #ff0080, #8000ff, #0080ff, #00ff80);
+            background-size: 400% 400%;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Bungee Shade', 'Impact', cursive;
+            box-shadow: 
+                0 0 30px rgba(255,0,128,0.6),
+                0 0 60px rgba(128,0,255,0.4),
+                0 15px 35px rgba(0,0,0,0.3);
+            animation: logoFloat 3s ease-in-out infinite, logoGlow 2s ease-in-out infinite alternate, logoRotate 8s linear infinite;
+            border: 4px solid rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(255,255,255,0.3), transparent);
+            animation: logoSpin 3s linear infinite;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff0080, #8000ff, #0080ff, #00ff80);
+            background-size: 400% 400%;
+            animation: gradientShift 2s ease infinite;
+            z-index: -1;
+        }
+
+        .title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff0080, #00ff80, #8000ff, #ff8000, #0080ff, #ff4080);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 2s ease infinite, graffitiBounce 3s ease-in-out infinite;
+            text-shadow: none;
+            transform: rotate(-2deg);
+            font-family: 'Bungee Shade', 'Impact', cursive;
+            letter-spacing: 6px;
+            position: relative;
+            filter: drop-shadow(4px 4px 0px #000) drop-shadow(8px 8px 12px rgba(0,0,0,0.6));
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            transform: rotate(-1deg);
+            margin-top: 20px;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .app-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .app-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .app-description {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .app-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .app-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active { background: #e8f5e8; color: #2d7d32; }
+        .status-maintenance { background: #fff3e0; color: #f57c00; }
+        .status-beta { background: #e3f2fd; color: #1976d2; }
+
+        .app-link {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .app-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 50px 0;
+        }
+
+        .no-apps {
+            text-align: center;
+            color: white;
+            padding: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+
+        @keyframes logoGlow {
+            0% { 
+                box-shadow: 
+                    0 0 30px rgba(255,0,128,0.6),
+                    0 0 60px rgba(128,0,255,0.4),
+                    0 15px 35px rgba(0,0,0,0.3);
+            }
+            100% { 
+                box-shadow: 
+                    0 0 50px rgba(255,0,128,0.8),
+                    0 0 80px rgba(128,0,255,0.6),
+                    0 20px 40px rgba(0,0,0,0.4);
+            }
+        }
+
+        @keyframes logoRotate {
+            from { filter: hue-rotate(0deg); }
+            to { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes logoSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes graffitiBounce {
+            0%, 100% { transform: rotate(-2deg) scale(1); }
+            50% { transform: rotate(-1deg) scale(1.03); }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.8rem;
+                letter-spacing: 3px;
+            }
+            
+            .apps-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .logo {
+                width: 120px;
+                height: 120px;
+                font-size: 42px;
+            }
+
+            .admin-bar {
+                position: relative;
+                top: auto;
+                right: auto;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-bar">
+        <a href="/admin" class="admin-btn" id="adminBtn">⚙️ Admin Panel</a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo" id="logoLetter">K</div>
+            <h1 class="title" id="siteTitle">Krešo</h1>
+            <p class="subtitle" id="siteDescription">Moje Web Aplikacije</p>
+        </div>
+
+        <div id="loading" class="loading">
+            📱 Učitavam aplikacije...
+        </div>
+
+        <div class="apps-grid" id="appsGrid"></div>
+
+        <div class="footer">
+            <p id="footerText">&copy; 2025 Krešo. Sve aplikacije hostovane na Netlify.</p>
+        </div>
+    </div>
+
+    <script>
+        // Učitavanje aplikacija iz CMS-a
+        async function loadApps() {
+            try {
+                // Simulacija učitavanja - u stvarnoj implementaciji bi se učitavalo iz Netlify CMS-a
+                const apps = [
+                    {
+                        title: "Portfolio Web",
+                        description: "Moja osobna portfolio stranica s projektima i životopisom",
+                        url: "https://portfolio-kreso.netlify.app",
+                        icon: "🌐",
+                        category: "Portfolio",
+                        status: "Active",
+                        featured: true
+                    },
+                    {
+                        title: "Administratorski panel", 
+                        description: "Panel za upravljanje korisnicima i statistikama",
+                        url: "https://admin-dashboard-kreso.netlify.app",
+                        icon: "📊",
+                        category: "Alat",
+                        status: "Active",
+                        featured: false
+                    }
+                ];
+
+                document.getElementById('loading').style.display = 'none';
+                renderApps(apps);
+            } catch (error) {
+                document.getElementById('loading').innerHTML = 'Greška pri učitavanju aplikacija.';
+                console.error('Greška pri učitavanju aplikacija:', error);
+            }
+        }
+
+        function renderApps(apps) {
+            const grid = document.getElementById('appsGrid');
+            
+            if (apps.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-apps">
+                        <h3>📱 Nema dodanih aplikacija</h3>
+                        <p>Idite na Admin Panel da dodate svoje web aplikacije!</p>
+                        <a href="/admin" class="admin-btn" style="margin-top: 20px; display: inline-block;">➕ Dodaj aplikacije</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sortiraj - istaknute aplikacije na vrh
+            apps.sort((a, b) => b.featured - a.featured);
+
+            const statusLabels = {
+                'Active': 'Aktivna',
+                'Maintenance': 'Održavanje',
+                'Beta': 'Beta verzija'
+            };
+
+            grid.innerHTML = apps.map(app => `
+                <div class="app-card">
+                    <div class="app-icon">${app.icon}</div>
+                    <div class="app-meta">
+                        <span>📂 ${app.category}</span>
+                        <span class="app-status status-${app.status.toLowerCase()}">
+                            ${app.status === 'Active' ? '✅' : app.status === 'Maintenance' ? '🔧' : '🚧'} 
+                            ${statusLabels[app.status] || app.status}
+                        </span>
+                    </div>
+                    ${app.featured ? '<div style="position: absolute; top: 10px; right: 10px; background: #ff8000; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem;">⭐ Istaknuto</div>' : ''}
+                    <h3 class="app-title">${app.title}</h3>
+                    <p class="app-description">${app.description}</p>
+                    <a href="${app.url}" class="app-link" target="_blank">🚀 Otvori aplikaciju</a>
+                </div>
+            `).join('');
+
+            // Animacija za kartice
+            const cards = document.querySelectorAll('.app-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // Netlify Identity Widget
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on("init", user => {
+                if (!user) {
+                    window.netlifyIdentity.on("login", () => {
+                        document.location.href = "/admin/";
+                    });
+                }
+            });
+        }
+
+        // Učitaj aplikacije pri otvaranju stranice
+        document.addEventListener('DOMContentLoaded', loadApps);
+    </script>
+</body>
+</html>
