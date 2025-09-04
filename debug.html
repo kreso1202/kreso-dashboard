@@ -53,7 +53,7 @@
     <script>
         async function checkCMSFiles() {
             const results = document.getElementById('results');
-            results.textContent = '🔍 Provjeravam CMS datoteke...\n\n';
+            results.textContent = '🔍 Provjeravam CMS datoteke u novoj lokaciji (/cms-apps/)...\n\n';
             
             const knownFiles = [
                 'dojava-stanja-km', 
@@ -68,13 +68,13 @@
 
             for (const fileName of knownFiles) {
                 try {
-                    results.textContent += `Provjeravam: ${fileName}.md ... `;
+                    results.textContent += `Provjeravam: /cms-apps/${fileName}.md ... `;
                     
-                    const response = await fetch(`/sadrzaj/aplikacije/${fileName}.md`);
+                    const response = await fetch(`/cms-apps/${fileName}.md`);
                     
                     if (response.ok) {
                         const content = await response.text();
-                        foundFiles.push({ fileName, content: content.substring(0, 200) + '...' });
+                        foundFiles.push({ fileName, content: content.substring(0, 300) + '...' });
                         results.textContent += '✅ POSTOJI\n';
                     } else {
                         notFoundFiles.push(fileName);
@@ -90,22 +90,27 @@
             }
 
             results.textContent += '\n📊 REZULTATI:\n';
-            results.textContent += `✅ Pronađeno: ${foundFiles.length} datoteka\n`;
+            results.textContent += `✅ Pronađeno: ${foundFiles.length} datoteka u /cms-apps/\n`;
             results.textContent += `❌ Nedostaje: ${notFoundFiles.length} datoteka\n\n`;
 
             if (foundFiles.length > 0) {
                 results.textContent += '📄 SADRŽAJ PRONAĐENIH DATOTEKA:\n';
                 foundFiles.forEach(file => {
-                    results.textContent += `\n--- ${file.fileName}.md ---\n`;
+                    results.textContent += `\n--- /cms-apps/${file.fileName}.md ---\n`;
                     results.textContent += file.content + '\n';
                 });
             }
 
             if (notFoundFiles.length > 0) {
-                results.textContent += '\n❌ DATOTEKE KOJE NE POSTOJE:\n';
+                results.textContent += '\n❌ DATOTEKE KOJE NE POSTOJE U /cms-apps/:\n';
                 notFoundFiles.forEach(fileName => {
                     results.textContent += `- ${fileName}.md\n`;
                 });
+                
+                results.textContent += '\n💡 SLJEDEĆI KORACI:\n';
+                results.textContent += '1. Ažurirajte admin/config.yml na GitHub-u\n';
+                results.textContent += '2. Dodajte novu aplikaciju u Admin Panel-u\n';
+                results.textContent += '3. Ponovite test nakon deploy-a\n';
             }
         }
 
