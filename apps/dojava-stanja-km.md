@@ -1,7 +1,7 @@
 ---
 title: Dojava stanja kilometara
 description: Automatsko generiranje maila za dojavu stanja kilometara na vašem
-  službenom vozilu.
+  službenom automobilu.
 url: https://dojavi.netlify.app/
 icon: 🚗
 category: Ostalo
