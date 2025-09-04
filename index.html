@@ -388,7 +388,45 @@
             };
         }
 
-        // Load apps from CMS (JSON format)
+        // Function to parse markdown frontmatter
+        function parseFrontmatter(content) {
+            const fmRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
+            const match = content.match(fmRegex);
+            
+            if (!match) return null;
+            
+            const frontmatter = {};
+            const yamlContent = match[1];
+            const bodyContent = match[2];
+            
+            // Simple YAML parser for our specific format
+            yamlContent.split('\n').forEach(line => {
+                const colonIndex = line.indexOf(':');
+                if (colonIndex > 0) {
+                    const key = line.substring(0, colonIndex).trim();
+                    let value = line.substring(colonIndex + 1).trim();
+                    
+                    // Remove quotes if present
+                    if ((value.startsWith('"') && value.endsWith('"')) || 
+                        (value.startsWith("'") && value.endsWith("'"))) {
+                        value = value.slice(1, -1);
+                    }
+                    
+                    // Convert boolean strings
+                    if (value === 'true') value = true;
+                    if (value === 'false') value = false;
+                    
+                    frontmatter[key] = value;
+                }
+            });
+            
+            return {
+                data: frontmatter,
+                content: bodyContent.trim()
+            };
+        }
+
+        // Load apps from CMS (Markdown format)
         async function loadApps() {
             try {
                 console.log('🔍 Učitavam aplikacije iz CMS-a...');
@@ -409,21 +447,22 @@
                     console.log('ℹ️ apps.json nije dostupan');
                 }
 
-                // Then, try to load individual CMS files
+                // Then, try to load individual CMS markdown files
                 const possibleCMSApps = [
-                    'test-aplikacija', 'moja-aplikacija', 'portfolio', 'blog', 'shop', 
-                    'web-app', 'demo', 'app1', 'app2', 'app3', 'nova-aplikacija',
-                    'website', 'dashboard', 'calculator', 'game'
+                    'dojava-stanja-km', 'test-aplikacija', 'moja-aplikacija', 'portfolio', 
+                    'blog', 'shop', 'web-app', 'demo', 'app1', 'app2', 'app3', 'nova-aplikacija',
+                    'website', 'dashboard', 'calculator', 'game', 'kalkulator', 'stranica'
                 ];
                 
                 for (const appName of possibleCMSApps) {
                     try {
-                        const response = await fetch(`/sadrzaj/aplikacije/${appName}.json`);
+                        const response = await fetch(`/sadrzaj/aplikacije/${appName}.md`);
                         if (response.ok) {
-                            const appData = await response.json();
-                            if (appData.title && !apps.find(app => app.title === appData.title)) {
-                                apps.push(appData);
-                                console.log('✅ Učitana CMS aplikacija:', appData.title);
+                            const content = await response.text();
+                            const parsed = parseFrontmatter(content);
+                            if (parsed && parsed.data.title && !apps.find(app => app.title === parsed.data.title)) {
+                                apps.push(parsed.data);
+                                console.log('✅ Učitana CMS aplikacija:', parsed.data.title);
                             }
                         }
                     } catch (e) {
