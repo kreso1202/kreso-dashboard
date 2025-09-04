@@ -1,0 +1,43 @@
+// Dodajte ovu skriptu u index.html prije zatvaranja </body> taga
+// ili kao zasebnu datoteku build-apps.js
+
+// Ova skripta će pokušati pronaći sve CMS aplikacije i stvoriti apps.json
+async function generateAppsJson() {
+    const fs = require('fs').promises;
+    const path = require('path');
+    
+    try {
+        const appsDir = 'sadrzaj/aplikacije';
+        const files = await fs.readdir(appsDir);
+        const apps = [];
+        
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                const filePath = path.join(appsDir, file);
+                const content = await fs.readFile(filePath, 'utf8');
+                const appData = JSON.parse(content);
+                apps.push(appData);
+            }
+        }
+        
+        // Sort by featured and date
+        apps.sort((a, b) => {
+            if (a.featured && !b.featured) return -1;
+            if (!a.featured && b.featured) return 1;
+            return new Date(b.date) - new Date(a.date);
+        });
+        
+        await fs.writeFile('apps.json', JSON.stringify(apps, null, 2));
+        console.log(`✅ Generated apps.json with ${apps.length} applications`);
+        
+    } catch (error) {
+        console.error('Error generating apps.json:', error);
+        // Create empty array if no apps found
+        await fs.writeFile('apps.json', '[]');
+    }
+}
+
+// Auto-run if this is being executed directly (in Node.js environment)
+if (typeof require !== 'undefined' && require.main === module) {
+    generateAppsJson();
+}
