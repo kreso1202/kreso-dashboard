@@ -393,20 +393,37 @@
             try {
                 console.log('🔍 Učitavam aplikacije iz CMS-a...');
                 
-                // Try to fetch the apps directory listing (this is a hack for static hosting)
                 const apps = [];
                 
-                // Try to fetch apps by attempting common filenames
-                const possibleApps = ['test-aplikacija', 'moja-aplikacija', 'portfolio', 'blog', 'shop', 'app1', 'app2', 'demo'];
+                // First, try to load from apps.json (manual apps)
+                try {
+                    const response = await fetch('/apps.json');
+                    if (response.ok) {
+                        const manualApps = await response.json();
+                        if (Array.isArray(manualApps) && manualApps.length > 0) {
+                            apps.push(...manualApps);
+                            console.log('✅ Učitano iz apps.json:', manualApps.length, 'aplikacija');
+                        }
+                    }
+                } catch (e) {
+                    console.log('ℹ️ apps.json nije dostupan');
+                }
+
+                // Then, try to load individual CMS files
+                const possibleCMSApps = [
+                    'test-aplikacija', 'moja-aplikacija', 'portfolio', 'blog', 'shop', 
+                    'web-app', 'demo', 'app1', 'app2', 'app3', 'nova-aplikacija',
+                    'website', 'dashboard', 'calculator', 'game'
+                ];
                 
-                for (const appName of possibleApps) {
+                for (const appName of possibleCMSApps) {
                     try {
                         const response = await fetch(`/sadrzaj/aplikacije/${appName}.json`);
                         if (response.ok) {
                             const appData = await response.json();
-                            if (appData.title) {
+                            if (appData.title && !apps.find(app => app.title === appData.title)) {
                                 apps.push(appData);
-                                console.log('✅ Učitana aplikacija:', appData.title);
+                                console.log('✅ Učitana CMS aplikacija:', appData.title);
                             }
                         }
                     } catch (e) {
@@ -414,24 +431,9 @@
                     }
                 }
 
-                // Alternative approach - try to fetch a consolidated apps.json file
-                try {
-                    const response = await fetch('/apps.json');
-                    if (response.ok) {
-                        const allApps = await response.json();
-                        if (Array.isArray(allApps) && allApps.length > 0) {
-                            console.log('✅ Učitano iz apps.json:', allApps.length, 'aplikacija');
-                            renderApps(allApps);
-                            document.getElementById('loading').style.display = 'none';
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.log('ℹ️ apps.json nije dostupan');
-                }
-                
+                // If still no apps found, show instructions
                 if (apps.length === 0) {
-                    console.log('⚠️ Nema pronađenih aplikacija u CMS-u');
+                    console.log('⚠️ Nema pronađenih aplikacija');
                     showInstructions();
                     return;
                 }
@@ -448,13 +450,16 @@
         function showInstructions() {
             document.getElementById('loading').innerHTML = `
                 <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px);">
-                    <h3 style="margin-bottom: 20px;">📱 Kako dodati aplikacije:</h3>
-                    <div style="text-align: left; max-width: 500px; margin: 0 auto;">
-                        <p style="margin-bottom: 15px;"><strong>1.</strong> Kliknite <a href="/admin" style="color: #00ff80;">Admin Panel</a> u gornjem desnom kutu</p>
-                        <p style="margin-bottom: 15px;"><strong>2.</strong> Odaberite "Web Aplikacije" → "Nova aplikacija"</p>
-                        <p style="margin-bottom: 15px;"><strong>3.</strong> Ispunite podatke i kliknite "Publish"</p>
-                        <p style="margin-bottom: 20px;"><strong>4.</strong> Čekajte 2-3 minute da se stranica ažurira</p>
-                        <a href="/admin" class="admin-btn" style="display: inline-block; margin-top: 10px;">➕ Dodaj prvu aplikaciju</a>
+                    <h3 style="margin-bottom: 20px;">📱 Dodano je u CMS, ali ne prikazuje se?</h3>
+                    <div style="text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                        <p style="margin-bottom: 15px;"><strong>🔧 Debugging koraci:</strong></p>
+                        <p style="margin-bottom: 10px;">1. Provjerite da li postoji datoteka u <code>sadrzaj/aplikacije/</code></p>
+                        <p style="margin-bottom: 10px;">2. Otvorite browser Console (F12) za greške</p>
+                        <p style="margin-bottom: 10px;">3. Ili dodajte aplikacije ručno u <code>apps.json</code></p>
+                        <div style="margin: 20px 0;">
+                            <a href="/admin" class="admin-btn" style="display: inline-block; margin-right: 10px;">⚙️ Admin Panel</a>
+                            <button onclick="location.reload()" class="admin-btn" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 25px; color: white; cursor: pointer;">🔄 Refresh</button>
+                        </div>
                     </div>
                 </div>
             `;
