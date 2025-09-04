@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Krešo - Moje Aplikacije</title>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Monoton&family=Bungee+Shade&family=Nosifer&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap');
 
         * {
             margin: 0;
@@ -30,31 +29,6 @@
             text-align: center;
             margin-bottom: 50px;
             color: white;
-        }
-
-        .admin-bar {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .admin-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            margin-left: 10px;
-        }
-
-        .admin-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
         }
 
         .logo {
@@ -241,15 +215,6 @@
             margin: 50px 0;
         }
 
-        .no-apps {
-            text-align: center;
-            color: white;
-            padding: 50px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-
         .featured-badge {
             position: absolute;
             top: 10px;
@@ -259,16 +224,6 @@
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.8rem;
-        }
-
-        .cms-info {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            color: white;
-            backdrop-filter: blur(10px);
         }
 
         @keyframes logoFloat {
@@ -326,44 +281,25 @@
                 height: 120px;
                 font-size: 42px;
             }
-
-            .admin-bar {
-                position: relative;
-                top: auto;
-                right: auto;
-                text-align: center;
-                margin-bottom: 20px;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="admin-bar">
-        <a href="/admin" class="admin-btn">⚙️ Admin Panel</a>
-    </div>
-
     <div class="container">
         <div class="header">
-            <div class="logo" id="logoLetter">K</div>
-            <h1 class="title" id="siteTitle">Krešo</h1>
-            <p class="subtitle" id="siteDescription">Moje Web Aplikacije</p>
-        </div>
-
-        <div class="cms-info">
-            <p><strong>💡 Kako dodati aplikacije:</strong></p>
-            <p>1. Idite na <a href="/admin" style="color: #00ff80;">Admin Panel</a> → Dodajte aplikaciju</p>
-            <p>2. Kopirajte podatke iz Admin Panel-a u <strong>apps.json</strong> datoteku</p>
-            <p>3. Aplikacije će se prikazati odmah! ⚡</p>
+            <div class="logo">K</div>
+            <h1 class="title">Krešo</h1>
+            <p class="subtitle">Moje Web Aplikacije</p>
         </div>
 
         <div id="loading" class="loading">
-            ⚡ Brzo učitavanje aplikacija...
+            ⚡ Učitavam aplikacije...
         </div>
 
         <div class="apps-grid" id="appsGrid"></div>
 
         <div class="footer">
-            <p id="footerText">&copy; 2025 Krešo. Sve aplikacije hostovane na Netlify.</p>
+            <p>&copy; 2025 Krešo.</p>
         </div>
     </div>
 
@@ -371,8 +307,7 @@
         // Fast loading - only apps.json
         async function loadApps() {
             try {
-                console.log('⚡ Brzo učitavanje iz apps.json...');
-                const startTime = Date.now();
+                console.log('⚡ Učitavam iz apps.json...');
                 
                 const response = await fetch('/apps.json');
                 if (!response.ok) {
@@ -380,9 +315,7 @@
                 }
                 
                 const apps = await response.json();
-                const loadTime = Date.now() - startTime;
-                
-                console.log(`✅ Učitano ${apps.length} aplikacija za ${loadTime}ms`);
+                console.log(`✅ Učitano ${apps.length} aplikacija`);
                 
                 document.getElementById('loading').style.display = 'none';
                 
@@ -402,30 +335,8 @@
         function showInstructions() {
             document.getElementById('loading').innerHTML = `
                 <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px);">
-                    <h3 style="margin-bottom: 20px;">📱 Dodajte prve aplikacije:</h3>
-                    <div style="text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-                        <p style="margin-bottom: 15px;"><strong>1.</strong> <a href="/admin" style="color: #00ff80;">Admin Panel</a> → "Web Aplikacije" → "Nova aplikacija"</p>
-                        <p style="margin-bottom: 15px;"><strong>2.</strong> Ispunite podatke → "Publish"</p>
-                        <p style="margin-bottom: 15px;"><strong>3.</strong> GitHub → "apps.json" → Dodajte aplikaciju</p>
-                        <p style="margin-bottom: 20px;"><strong>4.</strong> Refresh ovu stranicu!</p>
-                        
-                        <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; font-family: monospace; font-size: 0.9rem;">
-                            <strong>Dodaj u apps.json:</strong><br>
-                            [<br>
-                            &nbsp;&nbsp;{<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;"title": "Moja App",<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;"description": "Opis...",<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;"url": "https://...",<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;"icon": "🚀",<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;"category": "Portfolio",<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;"status": "Active",<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;"featured": true<br>
-                            &nbsp;&nbsp;}<br>
-                            ]
-                        </div>
-                        
-                        <a href="/admin" class="admin-btn" style="display: inline-block; margin-top: 20px;">➕ Dodaj aplikaciju</a>
-                    </div>
+                    <h3 style="margin-bottom: 20px;">📱 Nema dodanih aplikacija</h3>
+                    <p style="margin-bottom: 15px;">Za dodavanje aplikacija, uredite <strong>apps.json</strong> datoteku na GitHub-u.</p>
                 </div>
             `;
         }
@@ -474,17 +385,6 @@
                     card.style.opacity = '1';
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
-            });
-        }
-
-        // Netlify Identity Widget
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) {
-                    window.netlifyIdentity.on("login", () => {
-                        document.location.href = "/admin/";
-                    });
-                }
             });
         }
 
