@@ -388,66 +388,51 @@
             };
         }
 
-        // Load apps from CMS
+        // Load apps from CMS (JSON format)
         async function loadApps() {
             try {
-                console.log('🔍 Tražim CMS aplikacije...');
+                console.log('🔍 Učitavam aplikacije iz CMS-a...');
                 
-                // Try to load the app files from GitHub API indirectly
-                // Since we can't directly access GitHub API, we'll try to load known files
+                // Try to fetch the apps directory listing (this is a hack for static hosting)
                 const apps = [];
                 
-                // This is a workaround - we'll try to fetch individual files
-                // In a real implementation, you'd use GitHub API or build process
-                
-                // For now, let's try to detect if there are CMS files by trying common names
-                const possibleApps = ['test-app', 'moja-aplikacija', 'portfolio', 'blog', 'shop'];
+                // Try to fetch apps by attempting common filenames
+                const possibleApps = ['test-aplikacija', 'moja-aplikacija', 'portfolio', 'blog', 'shop', 'app1', 'app2', 'demo'];
                 
                 for (const appName of possibleApps) {
                     try {
-                        const response = await fetch(`/sadrzaj/aplikacije/${appName}/index.md`);
+                        const response = await fetch(`/sadrzaj/aplikacije/${appName}.json`);
                         if (response.ok) {
-                            const content = await response.text();
-                            const parsed = parseFrontmatter(content);
-                            if (parsed && parsed.data.title) {
-                                apps.push(parsed.data);
-                                console.log('✅ Učitana aplikacija:', parsed.data.title);
+                            const appData = await response.json();
+                            if (appData.title) {
+                                apps.push(appData);
+                                console.log('✅ Učitana aplikacija:', appData.title);
                             }
                         }
                     } catch (e) {
-                        // Ignore errors for non-existent files
+                        // Ignore - file doesn't exist
                     }
                 }
-                
-                // If no CMS apps found, show default examples with note
-                if (apps.length === 0) {
-                    console.log('ℹ️ Nema CMS aplikacija, prikazujem primjere');
-                    const defaultApps = [
-                        {
-                            title: "Portfolio Web",
-                            description: "Moja osobna portfolio stranica s projektima i životopisom (PRIMJER - dodajte prave aplikacije kroz Admin Panel)",
-                            url: "https://portfolio-kreso.netlify.app",
-                            icon: "🌐",
-                            category: "Portfolio",
-                            status: "Active",
-                            featured: true
-                        },
-                        {
-                            title: "Administratorski panel", 
-                            description: "Panel za upravljanje korisnicima i statistikama (PRIMJER - dodajte prave aplikacije kroz Admin Panel)",
-                            url: "https://admin-dashboard-kreso.netlify.app",
-                            icon: "📊",
-                            category: "Alat",
-                            status: "Active",
-                            featured: false
+
+                // Alternative approach - try to fetch a consolidated apps.json file
+                try {
+                    const response = await fetch('/apps.json');
+                    if (response.ok) {
+                        const allApps = await response.json();
+                        if (Array.isArray(allApps) && allApps.length > 0) {
+                            console.log('✅ Učitano iz apps.json:', allApps.length, 'aplikacija');
+                            renderApps(allApps);
+                            document.getElementById('loading').style.display = 'none';
+                            return;
                         }
-                    ];
-                    
-                    document.getElementById('loading').innerHTML = '⚠️ Dodajte aplikacije kroz Admin Panel da se prikažu ovdje!';
-                    setTimeout(() => {
-                        document.getElementById('loading').style.display = 'none';
-                        renderApps(defaultApps);
-                    }, 2000);
+                    }
+                } catch (e) {
+                    console.log('ℹ️ apps.json nije dostupan');
+                }
+                
+                if (apps.length === 0) {
+                    console.log('⚠️ Nema pronađenih aplikacija u CMS-u');
+                    showInstructions();
                     return;
                 }
                 
@@ -455,16 +440,24 @@
                 renderApps(apps);
                 
             } catch (error) {
-                console.error('Greška pri učitavanju aplikacija:', error);
-                document.getElementById('loading').innerHTML = `
-                    <div style="text-align: center;">
-                        <p>⚠️ Problem s učitavanjem aplikacija</p>
-                        <p style="font-size: 0.9rem; margin-top: 10px;">
-                            Dodajte aplikacije kroz <a href="/admin" style="color: #00ff80;">Admin Panel</a>
-                        </p>
-                    </div>
-                `;
+                console.error('❌ Greška pri učitavanju aplikacija:', error);
+                showInstructions();
             }
+        }
+
+        function showInstructions() {
+            document.getElementById('loading').innerHTML = `
+                <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px);">
+                    <h3 style="margin-bottom: 20px;">📱 Kako dodati aplikacije:</h3>
+                    <div style="text-align: left; max-width: 500px; margin: 0 auto;">
+                        <p style="margin-bottom: 15px;"><strong>1.</strong> Kliknite <a href="/admin" style="color: #00ff80;">Admin Panel</a> u gornjem desnom kutu</p>
+                        <p style="margin-bottom: 15px;"><strong>2.</strong> Odaberite "Web Aplikacije" → "Nova aplikacija"</p>
+                        <p style="margin-bottom: 15px;"><strong>3.</strong> Ispunite podatke i kliknite "Publish"</p>
+                        <p style="margin-bottom: 20px;"><strong>4.</strong> Čekajte 2-3 minute da se stranica ažurira</p>
+                        <a href="/admin" class="admin-btn" style="display: inline-block; margin-top: 10px;">➕ Dodaj prvu aplikaciju</a>
+                    </div>
+                </div>
+            `;
         }
 
         function renderApps(apps) {
