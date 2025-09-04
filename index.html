@@ -261,21 +261,14 @@
             font-size: 0.8rem;
         }
 
-        .sync-status {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.7);
+        .cms-info {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
             color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .sync-status.show {
-            opacity: 1;
+            backdrop-filter: blur(10px);
         }
 
         @keyframes logoFloat {
@@ -347,12 +340,7 @@
 <body>
     <div class="admin-bar">
         <a href="/admin" class="admin-btn">⚙️ Admin Panel</a>
-        <button onclick="syncApps()" class="admin-btn" style="background: rgba(0,255,128,0.2); border-color: rgba(0,255,128,0.5);">
-            🔄 Sync CMS
-        </button>
     </div>
-
-    <div class="sync-status" id="syncStatus"></div>
 
     <div class="container">
         <div class="header">
@@ -361,8 +349,15 @@
             <p class="subtitle" id="siteDescription">Moje Web Aplikacije</p>
         </div>
 
+        <div class="cms-info">
+            <p><strong>💡 Kako dodati aplikacije:</strong></p>
+            <p>1. Idite na <a href="/admin" style="color: #00ff80;">Admin Panel</a> → Dodajte aplikaciju</p>
+            <p>2. Kopirajte podatke iz Admin Panel-a u <strong>apps.json</strong> datoteku</p>
+            <p>3. Aplikacije će se prikazati odmah! ⚡</p>
+        </div>
+
         <div id="loading" class="loading">
-            📱 Učitavam aplikacije iz CMS-a...
+            ⚡ Brzo učitavanje aplikacija...
         </div>
 
         <div class="apps-grid" id="appsGrid"></div>
@@ -373,188 +368,63 @@
     </div>
 
     <script>
-        let allApps = [];
-
-        // Function to show sync status
-        function showSyncStatus(message, type = 'info') {
-            const status = document.getElementById('syncStatus');
-            status.textContent = message;
-            status.className = `sync-status show ${type}`;
-            setTimeout(() => {
-                status.classList.remove('show');
-            }, 3000);
-        }
-
-        // Function to parse markdown frontmatter
-        function parseFrontmatter(content) {
-            const fmRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
-            const match = content.match(fmRegex);
-            
-            if (!match) return null;
-            
-            const frontmatter = {};
-            const yamlContent = match[1];
-            const bodyContent = match[2];
-            
-            yamlContent.split('\n').forEach(line => {
-                const colonIndex = line.indexOf(':');
-                if (colonIndex > 0) {
-                    const key = line.substring(0, colonIndex).trim();
-                    let value = line.substring(colonIndex + 1).trim();
-                    
-                    // Remove quotes if present
-                    if ((value.startsWith('"') && value.endsWith('"')) || 
-                        (value.startsWith("'") && value.endsWith("'"))) {
-                        value = value.slice(1, -1);
-                    }
-                    
-                    // Convert boolean strings
-                    if (value === 'true') value = true;
-                    if (value === 'false') value = false;
-                    
-                    frontmatter[key] = value;
-                }
-            });
-            
-            return {
-                data: frontmatter,
-                content: bodyContent.trim()
-            };
-        }
-
-        // Function to discover CMS files using GitHub API approach
-        async function discoverCMSFiles() {
-            console.log('🔍 Pokušavam pronaći CMS datoteke...');
-            
-            const cmsApps = [];
-            
-            // Extended list of possible filenames that CMS might create
-            const possibleFiles = [
-                'dojava-stanja-km', 'dojava-stanja-kilometara', 'test-aplikacija', 
-                'moja-aplikacija', 'nova-aplikacija', 'portfolio', 'blog', 'shop', 
-                'web-app', 'website', 'stranica', 'demo', 'app', 'aplikacija',
-                'dashboard', 'admin', 'calculator', 'kalkulator', 'game', 'igra',
-                'tool', 'alat', 'project', 'projekt', 'cms-test', 'example',
-                'primjer', 'test', 'probna', 'sample', 'first-app', 'my-app',
-                // Add date-based patterns that CMS might use
-                '2025-01-', '2025-02-', '2025-03-', '2025-04-', '2025-05-',
-                '2025-06-', '2025-07-', '2025-08-', '2025-09-', '2025-10-',
-                '2025-11-', '2025-12-'
-            ];
-
-            // Also try with common CMS slug patterns
-            const slugPatterns = [
-                'app-', 'aplikacija-', 'web-', 'site-', 'project-', 'tool-'
-            ];
-
-            const allPossibleNames = [...possibleFiles];
-            
-            // Add numbered variations
-            for (let i = 1; i <= 10; i++) {
-                slugPatterns.forEach(pattern => {
-                    allPossibleNames.push(`${pattern}${i}`, `${pattern}0${i}`);
-                });
-                allPossibleNames.push(`app${i}`, `aplikacija${i}`, `test${i}`);
-            }
-
-            for (const fileName of allPossibleNames) {
-                try {
-                    const response = await fetch(`/sadrzaj/aplikacije/${fileName}.md`);
-                    if (response.ok) {
-                        const content = await response.text();
-                        const parsed = parseFrontmatter(content);
-                        if (parsed && parsed.data.title) {
-                            // Avoid duplicates
-                            if (!cmsApps.find(app => app.title === parsed.data.title)) {
-                                cmsApps.push(parsed.data);
-                                console.log('✅ Pronašao CMS aplikaciju:', parsed.data.title, `(${fileName}.md)`);
-                            }
-                        }
-                    }
-                } catch (e) {
-                    // Ignore errors - file doesn't exist
-                }
-            }
-
-            return cmsApps;
-        }
-
-        // Load apps from all sources - FASTER VERSION
+        // Fast loading - only apps.json
         async function loadApps() {
             try {
-                console.log('🚀 Brzo učitavanje aplikacija...');
-                showSyncStatus('⚡ Učitavam...', 'info');
-                
+                console.log('⚡ Brzo učitavanje iz apps.json...');
                 const startTime = Date.now();
-                const apps = [];
                 
-                // Load both sources in parallel for speed
-                const [manualAppsResult, cmsAppsResult] = await Promise.allSettled([
-                    // Load manual apps from apps.json
-                    fetch('/apps.json').then(res => res.ok ? res.json() : []),
-                    // Load CMS apps
-                    discoverCMSFiles()
-                ]);
-
-                // Process manual apps
-                if (manualAppsResult.status === 'fulfilled' && Array.isArray(manualAppsResult.value)) {
-                    apps.push(...manualAppsResult.value);
-                    console.log('✅ apps.json:', manualAppsResult.value.length, 'aplikacija');
+                const response = await fetch('/apps.json');
+                if (!response.ok) {
+                    throw new Error('apps.json not found');
                 }
-
-                // Process CMS apps
-                if (cmsAppsResult.status === 'fulfilled') {
-                    const cmsApps = cmsAppsResult.value;
-                    // Merge CMS apps, avoiding duplicates
-                    cmsApps.forEach(cmsApp => {
-                        if (!apps.find(app => app.title === cmsApp.title || app.url === cmsApp.url)) {
-                            apps.push(cmsApp);
-                        }
-                    });
-                    console.log('✅ CMS:', cmsApps.length, 'novih aplikacija');
-                }
-
+                
+                const apps = await response.json();
                 const loadTime = Date.now() - startTime;
-                console.log(`⚡ Učitano za ${loadTime}ms: ${apps.length} ukupno aplikacija`);
-
-                allApps = apps;
-
+                
+                console.log(`✅ Učitano ${apps.length} aplikacija za ${loadTime}ms`);
+                
+                document.getElementById('loading').style.display = 'none';
+                
                 if (apps.length === 0) {
                     showInstructions();
-                    showSyncStatus('⚠️ Nema aplikacija', 'warning');
                     return;
                 }
                 
-                document.getElementById('loading').style.display = 'none';
                 renderApps(apps);
-                showSyncStatus(`✅ ${apps.length} aplikacija (${loadTime}ms)`, 'success');
                 
             } catch (error) {
                 console.error('❌ Greška pri učitavanju:', error);
                 showInstructions();
-                showSyncStatus('❌ Greška', 'error');
             }
-        }
-
-        // Manual sync function
-        async function syncApps() {
-            showSyncStatus('🔄 Sinhroniziram s CMS-om...', 'info');
-            await loadApps();
         }
 
         function showInstructions() {
             document.getElementById('loading').innerHTML = `
                 <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px);">
-                    <h3 style="margin-bottom: 20px;">📱 Kako koristiti automatski CMS:</h3>
+                    <h3 style="margin-bottom: 20px;">📱 Dodajte prve aplikacije:</h3>
                     <div style="text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-                        <p style="margin-bottom: 15px;"><strong>1.</strong> Kliknite <a href="/admin" style="color: #00ff80;">"Admin Panel"</a> → Dodaj novu aplikaciju</p>
-                        <p style="margin-bottom: 15px;"><strong>2.</strong> Ispunite podatke → Kliknite "Publish"</p>
-                        <p style="margin-bottom: 15px;"><strong>3.</strong> Čekajte 2-3 minute za deploy</p>
-                        <p style="margin-bottom: 15px;"><strong>4.</strong> Kliknite "🔄 Sync CMS" ili refresh stranicu</p>
-                        <div style="margin: 20px 0;">
-                            <a href="/admin" class="admin-btn" style="display: inline-block; margin-right: 10px;">⚙️ Admin Panel</a>
-                            <button onclick="syncApps()" class="admin-btn" style="background: rgba(0,255,128,0.2); border: 2px solid rgba(0,255,128,0.5); cursor: pointer;">🔄 Sync CMS</button>
+                        <p style="margin-bottom: 15px;"><strong>1.</strong> <a href="/admin" style="color: #00ff80;">Admin Panel</a> → "Web Aplikacije" → "Nova aplikacija"</p>
+                        <p style="margin-bottom: 15px;"><strong>2.</strong> Ispunite podatke → "Publish"</p>
+                        <p style="margin-bottom: 15px;"><strong>3.</strong> GitHub → "apps.json" → Dodajte aplikaciju</p>
+                        <p style="margin-bottom: 20px;"><strong>4.</strong> Refresh ovu stranicu!</p>
+                        
+                        <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; font-family: monospace; font-size: 0.9rem;">
+                            <strong>Dodaj u apps.json:</strong><br>
+                            [<br>
+                            &nbsp;&nbsp;{<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;"title": "Moja App",<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;"description": "Opis...",<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;"url": "https://...",<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;"icon": "🚀",<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;"category": "Portfolio",<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;"status": "Active",<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;"featured": true<br>
+                            &nbsp;&nbsp;}<br>
+                            ]
                         </div>
+                        
+                        <a href="/admin" class="admin-btn" style="display: inline-block; margin-top: 20px;">➕ Dodaj aplikaciju</a>
                     </div>
                 </div>
             `;
@@ -563,11 +433,6 @@
         function renderApps(apps) {
             const grid = document.getElementById('appsGrid');
             
-            if (apps.length === 0) {
-                showInstructions();
-                return;
-            }
-
             // Sort - featured applications first, then by date
             apps.sort((a, b) => {
                 const aFeatured = a.featured === true ? 1 : 0;
@@ -612,12 +477,6 @@
             });
         }
 
-        // Automatic refresh every 5 minutes to check for new CMS content
-        setInterval(() => {
-            console.log('🔄 Automatska provjera novih aplikacija...');
-            loadApps();
-        }, 300000); // 5 minutes
-
         // Netlify Identity Widget
         if (window.netlifyIdentity) {
             window.netlifyIdentity.on("init", user => {
@@ -631,16 +490,6 @@
 
         // Load applications on page load
         document.addEventListener('DOMContentLoaded', loadApps);
-
-        // Also check for changes when the page becomes visible again (e.g., returning from Admin Panel)
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                setTimeout(() => {
-                    console.log('🔄 Stranica je postala vidljiva - provjera ažuriranja...');
-                    loadApps();
-                }, 1000);
-            }
-        });
     </script>
 </body>
 </html>
