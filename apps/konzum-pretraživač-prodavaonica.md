@@ -1,5 +1,5 @@
 ---
-title: Konzum pretraživač prodavaonica
+title: Konzum pretraga prodavaonica
 description: Alat za pretragu Konzum lokacija za cijelu HR za potrebe odjela održavanja.
 url: https://konzumodrzavanje.netlify.app/
 icon: 👨‍🔧
