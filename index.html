@@ -368,7 +368,7 @@
         <div class="apps-grid" id="appsGrid"></div>
 
         <div class="footer">
-            <p id="footerText">&copy; 2025 Krešo.</p>
+            <p id="footerText">&copy; 2025 Krešo. Sve aplikacije hostovane na Netlify.</p>
         </div>
     </div>
 
@@ -479,39 +479,43 @@
             return cmsApps;
         }
 
-        // Load apps from all sources
+        // Load apps from all sources - FASTER VERSION
         async function loadApps() {
             try {
-                console.log('🚀 Pokretam sveobuhvatno učitavanje aplikacija...');
-                showSyncStatus('🔄 Učitavam aplikacije...', 'info');
+                console.log('🚀 Brzo učitavanje aplikacija...');
+                showSyncStatus('⚡ Učitavam...', 'info');
                 
+                const startTime = Date.now();
                 const apps = [];
                 
-                // First, load manual apps from apps.json
-                try {
-                    const response = await fetch('/apps.json');
-                    if (response.ok) {
-                        const manualApps = await response.json();
-                        if (Array.isArray(manualApps) && manualApps.length > 0) {
-                            apps.push(...manualApps);
-                            console.log('✅ Učitano iz apps.json:', manualApps.length, 'aplikacija');
-                        }
-                    }
-                } catch (e) {
-                    console.log('ℹ️ apps.json nije dostupan');
+                // Load both sources in parallel for speed
+                const [manualAppsResult, cmsAppsResult] = await Promise.allSettled([
+                    // Load manual apps from apps.json
+                    fetch('/apps.json').then(res => res.ok ? res.json() : []),
+                    // Load CMS apps
+                    discoverCMSFiles()
+                ]);
+
+                // Process manual apps
+                if (manualAppsResult.status === 'fulfilled' && Array.isArray(manualAppsResult.value)) {
+                    apps.push(...manualAppsResult.value);
+                    console.log('✅ apps.json:', manualAppsResult.value.length, 'aplikacija');
                 }
 
-                // Then discover and load CMS applications
-                const cmsApps = await discoverCMSFiles();
-                
-                // Merge CMS apps with manual apps, avoiding duplicates
-                cmsApps.forEach(cmsApp => {
-                    if (!apps.find(app => app.title === cmsApp.title || app.url === cmsApp.url)) {
-                        apps.push(cmsApp);
-                    }
-                });
+                // Process CMS apps
+                if (cmsAppsResult.status === 'fulfilled') {
+                    const cmsApps = cmsAppsResult.value;
+                    // Merge CMS apps, avoiding duplicates
+                    cmsApps.forEach(cmsApp => {
+                        if (!apps.find(app => app.title === cmsApp.title || app.url === cmsApp.url)) {
+                            apps.push(cmsApp);
+                        }
+                    });
+                    console.log('✅ CMS:', cmsApps.length, 'novih aplikacija');
+                }
 
-                console.log(`📊 Ukupno pronađeno: ${apps.length} aplikacija`);
+                const loadTime = Date.now() - startTime;
+                console.log(`⚡ Učitano za ${loadTime}ms: ${apps.length} ukupno aplikacija`);
 
                 allApps = apps;
 
@@ -523,12 +527,12 @@
                 
                 document.getElementById('loading').style.display = 'none';
                 renderApps(apps);
-                showSyncStatus(`✅ Učitano ${apps.length} aplikacija`, 'success');
+                showSyncStatus(`✅ ${apps.length} aplikacija (${loadTime}ms)`, 'success');
                 
             } catch (error) {
-                console.error('❌ Greška pri učitavanju aplikacija:', error);
+                console.error('❌ Greška pri učitavanju:', error);
                 showInstructions();
-                showSyncStatus('❌ Greška pri učitavanju', 'error');
+                showSyncStatus('❌ Greška', 'error');
             }
         }
 
