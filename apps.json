@@ -1,12 +1,11 @@
 [
   {
-    "title": "Test Aplikacija",
-    "description": "Moja prva aplikacija preko CMS-a",
-    "url": "https://example.com",
-    "icon": "🚀",
-    "category": "Test",
+    "title": "Dojava stanja kilometara", 
+    "description": "Automatsko generiranje maila za dojavu stanja kilometara na vašem službenom vozilu.",
+    "url": "https://dojavi.netlify.app/",
+    "icon": "🚗",
+    "category": "Ostalo",
     "status": "Active",
-    "featured": true,
-    "date": "2025-01-04"
+    "featured": true
   }
 ]
