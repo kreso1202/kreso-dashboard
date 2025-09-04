@@ -1,0 +1,38 @@
+# netlify.toml - Konfiguracija za automatsku konverziju
+
+[build]
+  # Build command koji se pokreće pri svakom deploy-u
+  command = "node build-apps.js"
+  
+  # Publish directory
+  publish = "."
+
+[build.processing]
+  # Ne minimiziraj JS za lakši debug
+  skip_processing = false
+
+# Build hook - pokreće build kad se CMS ažurira
+[[build.environment]]
+  # Environment varijable ako trebamo
+  
+# Automatski rebuild kad se promijeni sadržaj u CMS folderima
+[build.ignore]
+  # Ne ignoriraj ništa - uvijek rebuildiraj
+
+# Redirects za lakši pristup
+[[redirects]]
+  from = "/build-apps"
+  to = "/.netlify/functions/build-apps"
+  status = 200
+
+[[redirects]]
+  from = "/sync"
+  to = "/.netlify/functions/build-apps" 
+  status = 200
+
+# Git Gateway za CMS
+[context.production]
+  command = "node build-apps.js && echo 'Build completed'"
+
+[context.branch-deploy]
+  command = "node build-apps.js && echo 'Branch build completed'"
