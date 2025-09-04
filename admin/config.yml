@@ -10,7 +10,7 @@ locale: 'hr'
 collections:
   - name: "aplikacije"
     label: "Web Aplikacije"
-    folder: "sadržaj/aplikacije"
+    folder: "apps"
     create: true
     slug: "{{slug}}"
     fields:
@@ -33,7 +33,7 @@ collections:
     files:
       - label: "Općenite postavke"
         name: "općenito"
-        file: "sadržaj/postavke/općenito.md"
+        file: "settings/općenito.md"
         fields:
           - {label: "Naslov stranice", name: "site_title", widget: "string", default: "Krešo - Moje Aplikacije", hint: "Naslov koji se prikazuje u browseru"}
           - {label: "Podnaslov", name: "site_subtitle", widget: "string", default: "Moje Web Aplikacije", hint: "Tekst ispod glavnog naslova"}
