@@ -12,7 +12,7 @@
     "title": "Konzum pretražívač prodavaonica",
     "description": "Aplikacija za pretraživanje Konzum prodavaonica",
     "url": "https://konzumodrzavanje.netlify.app/",
-    "icon": "🛒",
+    "icon": "🔍",
     "category": "Alat", 
     "status": "Active",
     "featured": false
