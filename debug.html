@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS Debug Helper</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        button {
+            background: rgba(0,255,128,0.2);
+            border: 2px solid rgba(0,255,128,0.5);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 10px;
+        }
+        .results {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕵️ CMS Debug Helper</h1>
+        <p>Ovaj alat će provjeriti koje CMS datoteke stvarno postoje na serveru.</p>
+        
+        <button onclick="checkCMSFiles()">🔍 Provjeri CMS Datoteke</button>
+        <button onclick="listAllPossibleFiles()">📝 Lista Svih Mogućih Naziva</button>
+        
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        async function checkCMSFiles() {
+            const results = document.getElementById('results');
+            results.textContent = '🔍 Provjeravam CMS datoteke...\n\n';
+            
+            const knownFiles = [
+                'dojava-stanja-km', 
+                'dojava-stanja-kilometara',
+                'test-aplikacija',
+                'nova-aplikacija',
+                'moja-aplikacija'
+            ];
+
+            const foundFiles = [];
+            const notFoundFiles = [];
+
+            for (const fileName of knownFiles) {
+                try {
+                    results.textContent += `Provjeravam: ${fileName}.md ... `;
+                    
+                    const response = await fetch(`/sadrzaj/aplikacije/${fileName}.md`);
+                    
+                    if (response.ok) {
+                        const content = await response.text();
+                        foundFiles.push({ fileName, content: content.substring(0, 200) + '...' });
+                        results.textContent += '✅ POSTOJI\n';
+                    } else {
+                        notFoundFiles.push(fileName);
+                        results.textContent += `❌ Ne postoji (${response.status})\n`;
+                    }
+                } catch (error) {
+                    notFoundFiles.push(fileName);
+                    results.textContent += `❌ Greška: ${error.message}\n`;
+                }
+                
+                // Add small delay to avoid overwhelming the server
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            results.textContent += '\n📊 REZULTATI:\n';
+            results.textContent += `✅ Pronađeno: ${foundFiles.length} datoteka\n`;
+            results.textContent += `❌ Nedostaje: ${notFoundFiles.length} datoteka\n\n`;
+
+            if (foundFiles.length > 0) {
+                results.textContent += '📄 SADRŽAJ PRONAĐENIH DATOTEKA:\n';
+                foundFiles.forEach(file => {
+                    results.textContent += `\n--- ${file.fileName}.md ---\n`;
+                    results.textContent += file.content + '\n';
+                });
+            }
+
+            if (notFoundFiles.length > 0) {
+                results.textContent += '\n❌ DATOTEKE KOJE NE POSTOJE:\n';
+                notFoundFiles.forEach(fileName => {
+                    results.textContent += `- ${fileName}.md\n`;
+                });
+            }
+        }
+
+        async function listAllPossibleFiles() {
+            const results = document.getElementById('results');
+            results.textContent = '📝 Moguće CMS datoteke koje tražimo:\n\n';
+            
+            const possibleFiles = [
+                'dojava-stanja-km', 'dojava-stanja-kilometara', 'test-aplikacija', 
+                'nova-aplikacija', 'moja-aplikacija', 'portfolio', 'blog', 'website', 
+                'demo', 'app-1', 'app-2'
+            ];
+
+            possibleFiles.forEach((fileName, index) => {
+                results.textContent += `${index + 1}. ${fileName}.md\n`;
+            });
+
+            results.textContent += '\n💡 SAVJET:\n';
+            results.textContent += 'Ako vaša aplikacija ima drugačiji naziv,\n';
+            results.textContent += 'dodajte je ručno u apps.json datoteku.\n\n';
+            
+            results.textContent += '🔗 KAKO DODATI U apps.json:\n';
+            results.textContent += '1. Idite na GitHub → apps.json → Edit\n';
+            results.textContent += '2. Dodajte svoju aplikaciju u JSON format\n';
+            results.textContent += '3. Commit changes\n';
+        }
+    </script>
+</body>
+</html>
