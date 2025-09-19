@@ -8,6 +8,15 @@
     "status": "Active",
     "featured": true
   },
+   {
+    "title": "Generiranje Excel odobrenja",
+    "description": "Aplikacija za olakšano kreiranje odobrenja za slanje na odobravanje.",
+    "url": "https://generator-odobrenja.netlify.app/",
+    "icon": "✔️",
+    "category": "Alat", 
+    "status": "Active",
+    "featured": false
+  },
   {
     "title": "Konzum pretražívač prodavaonica",
     "description": "Aplikacija za pretraživanje Konzum prodavaonica",
